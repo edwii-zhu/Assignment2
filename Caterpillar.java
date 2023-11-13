@@ -67,9 +67,13 @@ public class Caterpillar {
 		}
 		this.head.position = p;
 		for(Segment check = this.head; check.next != null; check = check.next) {
-			check.position = check.next.position;}
-
+			if (check.position == p){
+				this.stage = EvolutionStage.ENTANGLED;
+			}
+			check.position = check.next.position;
 		}
+		Position push = positionsPreviouslyOccupied.push(this.tail.position);
+	}
 
 
 
@@ -93,32 +97,81 @@ public class Caterpillar {
 
 
 	// all the caterpillar's colors shuffles around
+	//
+	//Shuffle all the caterpillar’s colors!
+	//There are different ways of doing this, but for this assignment you will need to implement the method using the Fisher–Yates shuffle algorithm. The algorithm runs in O(n) using O(n) space, where n is the number of segments. To perform a shuffle of the colors follow the steps:
+	//– Copy all the colors inside an array
+	//– Shuffle the array using the following algorithm:
+	//               for i from n-1 to 1 do
+	//                   j <-- random integer such that 0 <= j <= i
+	//                   swap a[j] and a[i]
+	//To generate a random integer use the Random object stored in the class field called randNumGenerator.
+	//– Use the array to update the colors in the all of the segments.
+
 	public void eat(Lollipop lolly) {
 		/*
-		 * TODO: ADD YOUR CODE HERE
-		 */	
+		 *
+		 */
+		for (Segment check = this.head; check.next != null; check = check.next){
+			Color[] colors = new Color[this.length];
+			for (int i = 0; i < this.length; i++){
+				colors[i] = check.color;
+			}
+			for (int i = this.length - 1; i > 0; i--){
+				int j = randNumGenerator.nextInt(i);
+				Color temp = colors[i];
+				colors[i] = colors[j];
+				colors[j] = temp;
+			}
+			for (int i = 0; i < this.length; i++){
+				check.color = colors[i];
+			}
+		}
 	}
 
 	// brain freeze!!
 	// It reverses and its (new) head turns blue
+	// Its body does a hilarious flip, reversing on itself and its (new) head turns blue like an icicle. At this point it lost track of where it has been before, and the stack of previously occupied positions is now empty.
+	// This method runs in O(n), where n is the number of segments.
 	public void eat(IceCream gelato) {
 		/*
 		 * TODO: ADD YOUR CODE HERE
-		 */	
+		 */
+
+		Segment temp = this.head;
+		this.head = this.tail;
+		this.tail = temp;
+		this.head.color = GameColors.BLUE;
+		this.positionsPreviouslyOccupied.clear();
+		while(temp.next != null){
+			Segment temp2 = temp.next;
+			temp.next = temp2.next;
+			temp2.next = this.head;
+			this.head = temp2;
+		}
+
 	}
 
-	// the caterpillar embodies a slide of Swiss cheese loosing half of its segments. 
+	// the caterpillar embodies a slide of Swiss cheese loosing half of its segments.
+	//This method shrinks the caterpillar who loses every other segment of its body. This means that the segments left will have the colors of every other segment of the original body. But be careful, we do not want a caterpillar in pieces! The segments should still appear in positions
+	// that are adjacent to one another, specifically the head will remain in the original position and only the first half (rounding up) of the segments’ positions will be maintained
 	public void eat(SwissCheese cheese) {
 		/*
 		 * TODO: ADD YOUR CODE HERE
-		 */	
+		 */
+		for (int i = 0; i < this.length; i++) {
+			if (i % 2 == 0) {
+				Segment temp = this.head;
+
+
+			}
+		}
 	}
-
-
+	//the holy grail of all treats! Here’s something that will make the caterpillar truly grow. When eating a cake, the caterpillar enters its GROWING STAGE. Its body will grow by as many segments as the energy provided by the cake. These segments will have a random color and will be added at the tail of the caterpillar’s body. Be careful though, this growth might not take place entirely in this method! In fact, the caterpillar will grow by a number of segments that is equivalent to the minimum between the energy provided and the number of previously occupied positions that are still available to the caterpillar. For example, consider the following caterpillar:
 	public void eat(Cake cake) {
 		/*
 		 * TODO: ADD YOUR CODE HERE
-		 */	
+		 */
 	}
 
 
