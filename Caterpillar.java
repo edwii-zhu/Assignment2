@@ -65,14 +65,19 @@ public class Caterpillar {
 		if (Position.getDistance(head.position,p) > 1){
 			throw new IllegalArgumentException();
 		}
+		Position prev = p;
+		positionsPreviouslyOccupied.push(this.head.position);
 		this.head.position = p;
 		for(Segment check = this.head; check.next != null; check = check.next) {
+			Position temp = check.position;
+			check.position = positionsPreviouslyOccupied.pop();
+			positionsPreviouslyOccupied.push(temp);
 			if (check.position == p){
 				this.stage = EvolutionStage.ENTANGLED;
 			}
-			check.position = check.next.position;
 		}
-		Position push = positionsPreviouslyOccupied.push(this.tail.position);
+		positionsPreviouslyOccupied.push(this.tail.position);
+		this.tail.position = prev;
 	}
 
 
@@ -81,7 +86,7 @@ public class Caterpillar {
 	// With each fruit bite, the caterpillar grows longer by getting a new segment added matching the color of the fruit ingested. The new segment should be added at the tail of the caterpillar, and its position should be the most recent position previously occupied by the caterpillar. Make sure to update all relevant fields to represent this growth.
 	//This method runs in O(1).
 	public void eat(Fruit f) {
-		this.tail.next = new Segment(this.positionsPreviouslyOccupied.peek(), f.getColor());
+		this.tail.next = new Segment(this.positionsPreviouslyOccupied.pop(), f.getColor());
 		this.tail = this.tail.next;
 		this.length++;
 		this.positionsPreviouslyOccupied.push(this.tail.position);
