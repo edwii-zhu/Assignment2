@@ -120,26 +120,13 @@ public class Caterpillar {
 	//– Use the array to update the colors in all the segments.
 
 	public void eat(Lollipop lolly) {
-		/*
-		 *
-		 */
-		for (Segment check = this.head; check.next != null; check = check.next){
-			Color[] colors = new Color[this.length];
-			for (int i = 0; i < this.length; i++){
-				colors[i] = check.color;
-			}
-			for (int i = this.length - 1; i > 0; i--){
-				int j = randNumGenerator.nextInt(i);
-				Color temp = colors[i];
-				colors[i] = colors[j];
-				colors[j] = temp;
-			}
-			for (int i = 0; i < this.length; i++){
-				check.color = colors[i];
-			}
-		}
-	}
+	Color[] colors = new Color[this.getLength()];
+	int i = 0;
+	for (Segment check = this.head; check != null; check = check.next, i++){
+		colors[i] = check.color;
 
+	}
+	}
 	// brain freeze!!
 	// It reverses and its (new) head turns blue
 	// Its body does a hilarious flip, reversing on itself and its (new) head turns blue like an icicle. At this point it lost track of where it has been before, and the stack of previously occupied positions is now empty.
@@ -171,6 +158,17 @@ public class Caterpillar {
 		/*
 		 * TODO: ADD YOUR CODE HERE
 		 */
+		if (this.getLength() % 2 == 0) {
+			int len = this.getLength()/2;
+			Color[] colors = new Color[this.getLength()/2];
+		}
+		else {
+			int len = this.getLength()/2 + 1;
+			Color[] colors = new Color[this.getLength()/2 + 1];}
+		for (int i = 0; i < len; i++){
+			colors[i] = this.head.color;
+			this.
+		}
 		for (Segment s = this.head; s != null; s = s.next.next){
 			if (!s.position.equals(head.position)) s.position = s.next.position;
         }
@@ -212,7 +210,7 @@ public class Caterpillar {
 
 	public static void main(String[] args) {
 	Caterpillar gus = new Caterpillar(new Position(1,1), GameColors.GREEN, 5);
-	Fruit f = new Fruit(Color.ORANGE);
+	Fruit f = new Fruit(GameColors.ORANGE);
 	gus.move(new Position(1,2));
 	gus.eat(f);
 	System.out.println(gus);

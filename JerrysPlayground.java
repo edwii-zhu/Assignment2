@@ -101,12 +101,15 @@ public class JerrysPlayground extends Frame {
 
         // Manually links the segments for the initialisation, since there's no unified way of accessing linked list
         // methods.
+
         Caterpillar.Segment orange = gus.new Segment(new Position(10, 11), GameColors.ORANGE);
         Caterpillar.Segment yellow = gus.new Segment(new Position(10, 12), GameColors.YELLOW);
 
         setNext(gus.head, orange);
         setNext(orange, yellow);
         gus.tail = yellow;
+
+
         gus.length = 3;
 
         // Update the canvas.
