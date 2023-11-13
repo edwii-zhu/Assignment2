@@ -207,7 +207,11 @@ public class Caterpillar {
 		 */
 		int energy = cake.getEnergyProvided();
 		this.stage = EvolutionStage.GROWING_STAGE;
-		for (int i = 0; i<energy && !this.positionsPreviouslyOccupied.isEmpty(); i++){
+		for (int i = 0; i<energy; i++){
+			if(checkCollision(this.head, this.positionsPreviouslyOccupied.peek())){
+				this.turnsNeededToDigest = energy - i;
+				break;
+			}
 			this.tail.next = new Segment(this.positionsPreviouslyOccupied.pop(), GameColors.SEGMENT_COLORS[randNumGenerator.nextInt(GameColors.SEGMENT_COLORS.length)]);
 			this.tail = this.tail.next;
 			this.length++;
@@ -216,13 +220,19 @@ public class Caterpillar {
 				return;
 			}
 		}
-		if (energy > this.positionsPreviouslyOccupied.size()){
-			this.turnsNeededToDigest = energy - this.positionsPreviouslyOccupied.size();
-		}
-		else {
+		if (this.turnsNeededToDigest == 0){
 			this.stage = EvolutionStage.FEEDING_STAGE;
+			}
 		}
-	}
+
+	public boolean checkCollision(Segment head, Position p) {
+		for (Segment check = head; check != null; check = check.next) {
+			if (check.position.equals(this.positionsPreviouslyOccupied.peek())) {
+				return true;
+			}
+		}
+        return false;
+    }
 
 
 	// This nested class was declared public for testing purposes
