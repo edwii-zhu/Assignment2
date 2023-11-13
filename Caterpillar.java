@@ -1,6 +1,6 @@
 package assignment2;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Random;
 import java.util.Stack;
 
@@ -71,7 +71,7 @@ public class Caterpillar {
 			Position temp = check.position;
 			check.position = prev;
 			prev = temp;
-			if (temp.equals(p)){
+			if (prev.equals(p)){
 				this.stage = EvolutionStage.ENTANGLED;
 			}
 		}
@@ -100,10 +100,18 @@ public class Caterpillar {
 		/*
 		 * TODO: ADD YOUR CODE HERE
 		 */
-
-		//this.positionsPreviouslyOccupied.push(this.tail.position);
-
+		Position[] positions = new Position[this.getLength()];
+		int i = 0;
+		for (Segment check = this.head.next; check != null; check = check.next, i++){
+			positions[i] = check.position;
+			}
+		positions[i] = this.positionsPreviouslyOccupied.pop();
+		int j = 0;
+		for (Segment check = this.head; check != null; check = check.next, j++){
+			check.position = positions[j];
+			}
 	}
+
 
 
 
@@ -124,9 +132,19 @@ public class Caterpillar {
 	int i = 0;
 	for (Segment check = this.head; check != null; check = check.next, i++){
 		colors[i] = check.color;
+		}
+	for (i = this.getLength() - 1; i > 0; i--){
+		int j = randNumGenerator.nextInt(i+1);
+		Color temp = colors[i];
+		colors[i] = colors[j];
+		colors[j] = temp;
+		}
+	int j = 0;
+	for (Segment check = this.head; check != null; check = check.next,j++){
+		check.color = colors[j];
+		}
+	}
 
-	}
-	}
 	// brain freeze!!
 	// It reverses and its (new) head turns blue
 	// Its body does a hilarious flip, reversing on itself and its (new) head turns blue like an icicle. At this point it lost track of where it has been before, and the stack of previously occupied positions is now empty.
@@ -157,7 +175,7 @@ public class Caterpillar {
 	public void eat(SwissCheese cheese) {
 		/*
 		 * TODO: ADD YOUR CODE HERE
-		 */
+		 *
 		if (this.getLength() % 2 == 0) {
 			int len = this.getLength()/2;
 			Color[] colors = new Color[this.getLength()/2];
@@ -171,14 +189,39 @@ public class Caterpillar {
 		}
 		for (Segment s = this.head; s != null; s = s.next.next){
 			if (!s.position.equals(head.position)) s.position = s.next.position;
-        }
+        }*/
 	}
 
 	//the holy grail of all treats! Here’s something that will make the caterpillar truly grow. When eating a cake, the caterpillar enters its GROWING STAGE. Its body will grow by as many segments as the energy provided by the cake. These segments will have a random color and will be added at the tail of the caterpillar’s body. Be careful though, this growth might not take place entirely in this method! In fact, the caterpillar will grow by a number of segments that is equivalent to the minimum between the energy provided and the number of previously occupied positions that are still available to the caterpillar. For example, consider the following caterpillar:
+	// eat(Cake cake) : the holy grail of all treats! Here’s something that will make the caterpillar truly grow. When eating a cake, the caterpillar enters its GROWING STAGE. Its body will grow by as many segments as the energy provided by the cake. These segments will have a random color and will be added at the tail of the caterpillar’s body. Be careful though, this growth might not take place entirely in this method! In fact, the caterpillar will grow by a number of segments that is equivalent to the minimum between the energy provided and the number of previously occupied positions that are still available to the caterpillar. For example, consider the following caterpillar:
+	//(0,1) (0,0) (1,0)
+	//and assume the cake eaten provides an energy equal to 3 while the stack of previously occupied positions contains [(2,0), (1,0), (1,1)] (the right most element being at the top of the stack). From eating the cake, the caterpillar should grow by 3 segments, but it is not possible to do so in this method. Only (1,1) can be used for growth by the caterpillar, since (1,0) has already been occupied by another caterpillar’s segment.
+	// 8
+	// If the cake’s energy cannot be all consumed by the caterpillar in this method, the “left over” is then stored in the field turnsNeededToDigest, as the caterpillar will need that many turns in order to fully digest the cake.
+	//There are two more things you should keep in mind: it is possible for the caterpillar to reach its butterfly stage while growing in this method. If this is the case, its stage should be updated and the method should terminate right away. It is also possible for the caterpillar to fully consume the energy provided by the cake right here in this method. If this is the case, and the butterfly stage has not been reached, then the feeding stage should be resumed.
+	//Note: to generate a random color generate a random index that you can then use to select a color from the array GameColors.SEGMENT COLORS.
+	//This method runs in O(n ∗ m), where n is the number of segments and m the energy provided by the cake.
 	public void eat(Cake cake) {
 		/*
 		 * TODO: ADD YOUR CODE HERE
 		 */
+		int energy = cake.getEnergyProvided();
+		this.stage = EvolutionStage.GROWING_STAGE;
+		for (int i = 0; i<energy && !this.positionsPreviouslyOccupied.isEmpty(); i++){
+			this.tail.next = new Segment(this.positionsPreviouslyOccupied.pop(), GameColors.SEGMENT_COLORS[randNumGenerator.nextInt(GameColors.SEGMENT_COLORS.length)]);
+			this.tail = this.tail.next;
+			this.length++;
+			if (this.length >= this.goal){
+				this.stage = EvolutionStage.BUTTERFLY;
+				return;
+			}
+		}
+		if (energy > this.positionsPreviouslyOccupied.size()){
+			this.turnsNeededToDigest = energy - this.positionsPreviouslyOccupied.size();
+		}
+		else {
+			this.stage = EvolutionStage.FEEDING_STAGE;
+		}
 	}
 
 
@@ -211,8 +254,18 @@ public class Caterpillar {
 	public static void main(String[] args) {
 	Caterpillar gus = new Caterpillar(new Position(1,1), GameColors.GREEN, 5);
 	Fruit f = new Fruit(GameColors.ORANGE);
+	Fruit f2 = new Fruit(GameColors.RED);
+	Fruit f3 = new Fruit(GameColors.BLUE);
+	Lollipop l = new Lollipop();
 	gus.move(new Position(1,2));
+	gus.move(new Position(1,3));
+	gus.move(new Position(2,3));
+
 	gus.eat(f);
+	gus.eat(f2);
+	gus.eat(f3);
+	System.out.println(gus);
+	gus.eat(l);
 	System.out.println(gus);
 	}
 }
