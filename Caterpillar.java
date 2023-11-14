@@ -72,7 +72,7 @@ public class Caterpillar {
 			Position temp = check.position;
 			check.position = prev;
 			prev = temp;
-			if (prev.equals(p) && !prev.equals(tail.position)) {
+			if (prev.equals(p) && !prev.equals(positionsPreviouslyOccupied.peek())) {
 				this.stage = EvolutionStage.ENTANGLED;
 				return;
 			}
@@ -160,9 +160,6 @@ public class Caterpillar {
 	// Its body does a hilarious flip, reversing on itself and its (new) head turns blue like an icicle. At this point it lost track of where it has been before, and the stack of previously occupied positions is now empty.
 	// This method runs in O(n), where n is the number of segments.
 	public void eat(IceCream gelato) {
-		/*
-		 * TODO: ADD YOUR CODE HERE
-		 */
 		Segment prev = null;
 		Segment current = this.head;
 		Segment next = null;
@@ -174,7 +171,7 @@ public class Caterpillar {
 		}
 		this.head = prev;
 		this.head.color = GameColors.BLUE;
-		this.positionsPreviouslyOccupied = new Stack<Position>();
+		this.positionsPreviouslyOccupied.clear();
 	}
 
 
@@ -202,25 +199,6 @@ public class Caterpillar {
 			positionsPreviouslyOccupied.push(positions[l]);
 		}
 		length = nlen;
-		/*
-
-		Segment current = this.head;
-
-		while (current != null && current.next != null) {
-			current.next = current.next.next;
-			current = current.next;
-		}
-
-		current = this.head;
-
-		 */
-
-
-
-		/*
-		 * TODO: ADD YOUR CODE HERE
-		 */
-
 	}
 	
 
@@ -240,7 +218,7 @@ public class Caterpillar {
 		int energy = cake.getEnergyProvided();
 		this.stage = EvolutionStage.GROWING_STAGE;
 		for (int i = 0; i<energy; i++){
-			if(checkCollision(this.head, this.positionsPreviouslyOccupied.peek()) | this.positionsPreviouslyOccupied.isEmpty()){
+			if(this.positionsPreviouslyOccupied.isEmpty() || checkCollision(this.head, this.positionsPreviouslyOccupied.peek())){
 				this.turnsNeededToDigest = energy - i;
 				break;
 			}
