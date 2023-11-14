@@ -1,6 +1,7 @@
 package assignment2;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Stack;
 
@@ -170,6 +171,12 @@ public class Caterpillar {
 			current = next;
 		}
 		this.head = prev;
+		Segment check;
+        check = this.head;
+        while (check.next != null) {
+            check = check.next;
+        }
+        this.tail = check;
 		this.head.color = GameColors.BLUE;
 		this.positionsPreviouslyOccupied.clear();
 	}
@@ -179,11 +186,11 @@ public class Caterpillar {
 	//This method shrinks the caterpillar who loses every other segment of its body. This means that the segments left will have the colors of every other segment of the original body. But be careful, we do not want a caterpillar in pieces! The segments should still appear in positions
 	// that are adjacent to one another, specifically the head will remain in the original position and only the first half (rounding up) of the segments’ positions will be maintained
 	public void eat(SwissCheese cheese) {
-		int nlen = this.length / 2 + this.length % 2;
+		int nlen = this.getLength() / 2 + this.getLength() % 2;
 		Position[] positions = new Position[length];
 		Color[] colors = new Color[length];
 		int i = 0;
-		for(Segment check = this.head; check != null; check = check.next, i++) {
+		for(Segment check = this.head; i<length; check = check.next, i++) {
 			positions[i] = check.position;
 			colors[i] = check.color;
 		}
@@ -194,11 +201,12 @@ public class Caterpillar {
 			check.position = positions[j];
 			check.color = colors[k];
 		}
-		check.next = null;
+		this.tail = check;
+		tail.next = null;
 		for (int l = length - 1; l > nlen - 1; l--) {
 			positionsPreviouslyOccupied.push(positions[l]);
 		}
-		length = nlen;
+		this.length = nlen;
 	}
 	
 
