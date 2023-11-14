@@ -35,7 +35,7 @@ public class Caterpillar {
 		this.goal = goal;
 	}
 
-	
+
 	public EvolutionStage getEvolutionStage() {
 		return this.stage;
 	}
@@ -52,9 +52,10 @@ public class Caterpillar {
 	//getSegmentColor(Position p) : returns the color of the segment in the given position. If the caterpillar, does not have a segment placed upon the given position, then the method returns null.
 	//This method runs in O(n), where n is the number of segments
 	public Color getSegmentColor(Position p) {
-		for(Segment check = this.head; check != null; check = check.next){
-			if (check.position.equals(p)){
-				return check.color;}
+		for (Segment check = this.head; check != null; check = check.next) {
+			if (check.position.equals(p)) {
+				return check.color;
+			}
 		}
 		return null;
 	}
@@ -62,24 +63,37 @@ public class Caterpillar {
 
 	//  if possible the caterpillar moves its head (and all its body) to the input position. If the input position is out of reach, i.e. if when seen as a point on a Cartesian plane it is not orthogonally connected to the head’s position, then an IllegalArgumentException should be raised. If the position is within reach, but it is already occupied by a segment of the caterpillar’s body, then moving will generate a collision leading to the caterpillar being in an ENTANGLED stage (unfortunately, caterpillars do not recover from this stage and the game will end). If on the other hand, the position is reachable and moving to it would not lead to a collision, then the body of the caterpillar should be updated accordingly: all the positions in the segments should be updated to represent the caterpillar moving forward to the input position, while the colors remain the same.
 	public void move(Position p) {
-		if (Position.getDistance(head.position,p) > 1){
+		if (Position.getDistance(head.position, p) > 1) {
 			throw new IllegalArgumentException();
 		}
 		positionsPreviouslyOccupied.push(this.tail.position);
 		Position prev = p;
-		for(Segment check = this.head; check != null; check = check.next) {
+		for (Segment check = this.head; check != null; check = check.next) {
 			Position temp = check.position;
 			check.position = prev;
 			prev = temp;
-			if (prev.equals(p)){
+			if (prev.equals(p) && !prev.equals(tail.position)) {
 				this.stage = EvolutionStage.ENTANGLED;
+				return;
+			}
+		}
+		//Finally, if the caterpillar is still digesting a cake it had previously eaten, a segment with a random color should be added at the tail of its body ensuring its ever-growing journey continues. This in turn should decrease the number of turns left for its digestion, and might update its evolution stage to BUTTERFLY (if the goal was reached). If the caterpillar is in a growing stage, but its digestion is fully completed, then the FEEDING STAGE should be resumed since caterpillar is now ready to venture out for more treats.
+		if (this.stage == EvolutionStage.GROWING_STAGE && this.turnsNeededToDigest > 0) {
+			this.tail.next = new Segment(this.positionsPreviouslyOccupied.pop(), GameColors.SEGMENT_COLORS[randNumGenerator.nextInt(GameColors.SEGMENT_COLORS.length)]);
+			this.tail = this.tail.next;
+			this.length++;
+			this.turnsNeededToDigest--;
+			if (this.length >= this.goal) {
+				this.stage = EvolutionStage.BUTTERFLY;
+				return;
+			}
+			if (this.turnsNeededToDigest == 0) {
+				this.stage = EvolutionStage.FEEDING_STAGE;
 			}
 		}
 		// positionsPreviouslyOccupied.push(this.tail.position);
 		//this.tail.position = prev;
 	}
-
-
 
 
 	// With each fruit bite, the caterpillar grows longer by getting a new segment added matching the color of the fruit ingested. The new segment should be added at the tail of the caterpillar, and its position should be the most recent position previously occupied by the caterpillar. Make sure to update all relevant fields to represent this growth.
@@ -97,22 +111,18 @@ public class Caterpillar {
 	// And suppose that the most recent position previously occupied by this caterpillar is (2,3). Then, after eating a pickle the caterpillar will have the following segments:
 	// (2,3) (2,2) (2,1)
 	public void eat(Pickle p) {
-		/*
-		 * TODO: ADD YOUR CODE HERE
-		 */
+
 		Position[] positions = new Position[this.getLength()];
 		int i = 0;
-		for (Segment check = this.head.next; check != null; check = check.next, i++){
+		for (Segment check = this.head.next; check != null; check = check.next, i++) {
 			positions[i] = check.position;
-			}
+		}
 		positions[i] = this.positionsPreviouslyOccupied.pop();
 		int j = 0;
-		for (Segment check = this.head; check != null; check = check.next, j++){
+		for (Segment check = this.head; check != null; check = check.next, j++) {
 			check.position = positions[j];
-			}
+		}
 	}
-
-
 
 
 	// all the caterpillar's colors shuffles around
@@ -128,20 +138,20 @@ public class Caterpillar {
 	//– Use the array to update the colors in all the segments.
 
 	public void eat(Lollipop lolly) {
-	Color[] colors = new Color[this.getLength()];
-	int i = 0;
-	for (Segment check = this.head; check != null; check = check.next, i++){
-		colors[i] = check.color;
+		Color[] colors = new Color[this.getLength()];
+		int i = 0;
+		for (Segment check = this.head; check != null; check = check.next, i++) {
+			colors[i] = check.color;
 		}
-	for (i = this.getLength() - 1; i > 0; i--){
-		int j = randNumGenerator.nextInt(i+1);
-		Color temp = colors[i];
-		colors[i] = colors[j];
-		colors[j] = temp;
+		for (i = this.getLength() - 1; i > 0; i--) {
+			int j = randNumGenerator.nextInt(i + 1);
+			Color temp = colors[i];
+			colors[i] = colors[j];
+			colors[j] = temp;
 		}
-	int j = 0;
-	for (Segment check = this.head; check != null; check = check.next,j++){
-		check.color = colors[j];
+		int j = 0;
+		for (Segment check = this.head; check != null; check = check.next, j++) {
+			check.color = colors[j];
 		}
 	}
 
@@ -168,29 +178,51 @@ public class Caterpillar {
 	}
 
 
-
 	// the caterpillar embodies a slide of Swiss cheese loosing half of its segments.
 	//This method shrinks the caterpillar who loses every other segment of its body. This means that the segments left will have the colors of every other segment of the original body. But be careful, we do not want a caterpillar in pieces! The segments should still appear in positions
 	// that are adjacent to one another, specifically the head will remain in the original position and only the first half (rounding up) of the segments’ positions will be maintained
 	public void eat(SwissCheese cheese) {
+		int nlen = this.length / 2 + this.length % 2;
+		Position[] positions = new Position[length];
+		Color[] colors = new Color[length];
+		int i = 0;
+		for(Segment check = this.head; check != null; check = check.next, i++) {
+			positions[i] = check.position;
+			colors[i] = check.color;
+		}
+		int j = 0;
+		int k = 0;
+		Segment check;
+		for (check = this.head; j < nlen; check = check.next, j++, k+=2) {
+			check.position = positions[j];
+			check.color = colors[k];
+		}
+		check.next = null;
+		for (int l = length - 1; l > nlen - 1; l--) {
+			positionsPreviouslyOccupied.push(positions[l]);
+		}
+		length = nlen;
+		/*
+
+		Segment current = this.head;
+
+		while (current != null && current.next != null) {
+			current.next = current.next.next;
+			current = current.next;
+		}
+
+		current = this.head;
+
+		 */
+
+
+
 		/*
 		 * TODO: ADD YOUR CODE HERE
-		 *
-		if (this.getLength() % 2 == 0) {
-			int len = this.getLength()/2;
-			Color[] colors = new Color[this.getLength()/2];
-		}
-		else {
-			int len = this.getLength()/2 + 1;
-			Color[] colors = new Color[this.getLength()/2 + 1];}
-		for (int i = 0; i < len; i++){
-			colors[i] = this.head.color;
-			this.
-		}
-		for (Segment s = this.head; s != null; s = s.next.next){
-			if (!s.position.equals(head.position)) s.position = s.next.position;
-        }*/
+		 */
+
 	}
+	
 
 	//the holy grail of all treats! Here’s something that will make the caterpillar truly grow. When eating a cake, the caterpillar enters its GROWING STAGE. Its body will grow by as many segments as the energy provided by the cake. These segments will have a random color and will be added at the tail of the caterpillar’s body. Be careful though, this growth might not take place entirely in this method! In fact, the caterpillar will grow by a number of segments that is equivalent to the minimum between the energy provided and the number of previously occupied positions that are still available to the caterpillar. For example, consider the following caterpillar:
 	// eat(Cake cake) : the holy grail of all treats! Here’s something that will make the caterpillar truly grow. When eating a cake, the caterpillar enters its GROWING STAGE. Its body will grow by as many segments as the energy provided by the cake. These segments will have a random color and will be added at the tail of the caterpillar’s body. Be careful though, this growth might not take place entirely in this method! In fact, the caterpillar will grow by a number of segments that is equivalent to the minimum between the energy provided and the number of previously occupied positions that are still available to the caterpillar. For example, consider the following caterpillar:
@@ -208,7 +240,7 @@ public class Caterpillar {
 		int energy = cake.getEnergyProvided();
 		this.stage = EvolutionStage.GROWING_STAGE;
 		for (int i = 0; i<energy; i++){
-			if(checkCollision(this.head, this.positionsPreviouslyOccupied.peek())){
+			if(checkCollision(this.head, this.positionsPreviouslyOccupied.peek()) | this.positionsPreviouslyOccupied.isEmpty()){
 				this.turnsNeededToDigest = energy - i;
 				break;
 			}
