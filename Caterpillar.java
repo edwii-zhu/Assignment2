@@ -126,7 +126,7 @@ public class Caterpillar {
 	public void eat(IceCream gelato) {
 		Segment prev = null;
 		Segment current = this.head;
-		Segment next = null;
+		Segment next;
 		while (current != null) {
 			next = current.next;
 			current.next = prev;
