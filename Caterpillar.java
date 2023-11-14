@@ -173,7 +173,7 @@ public class Caterpillar {
 		this.head.color = GameColors.BLUE;
 		this.positionsPreviouslyOccupied.clear();
 	}
-
+//
 
 	// the caterpillar embodies a slide of Swiss cheese loosing half of its segments.
 	//This method shrinks the caterpillar who loses every other segment of its body. This means that the segments left will have the colors of every other segment of the original body. But be careful, we do not want a caterpillar in pieces! The segments should still appear in positions
