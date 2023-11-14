@@ -163,10 +163,10 @@ public class Caterpillar {
 		for (check = this.head; j < nlen - 1; check = check.next, j++,k+=2) {
 			check.position = positions[j];
 			check.color = colors[k];
+			System.out.println(k);
 		}
-
 		this.tail = check;
-		this.tail.color = colors[length - 1];
+		this.tail.color = colors[k];
 		tail.next = null;
 		for (int l = length - 1; l > nlen - 1; l--) {
 			positionsPreviouslyOccupied.push(positions[l]);
